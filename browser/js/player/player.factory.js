@@ -1,40 +1,39 @@
 'use strict';
 
-juke.factory('PlayerFactory', function(){
+juke.factory('PlayerFactory', function($rootScope){
   var audio = document.createElement('audio');
   var playing = false;
   var currentSong = null;
-  // non-UI logic in here
   var toReturn = {};
   var songs = [];
+  var that = this;
+
+  audio.addEventListener("ended", function () {
+    console.log(this);
+    // that.next();
+    $rootScope.$digest();
+  }.bind(this))
+
+
 
   toReturn.pause = function () {
-    console.log("getting into pause function")
     audio.pause();
     playing = false;
   }
 
   toReturn.start = function (song, songList) {
-    // stop existing audio (e.g. other song) in any case
-    // pause();
-    // $scope.playing = true;
-    // // resume current song
-    // if (song === $scope.currentSong) return audio.play();
-    // // enable loading new song
-    // $scope.currentSong = song;
-    // audio.src = song.audioUrl;
-    // audio.load();
-    // audio.play();
-    // pause();
-    // if(playing) pause();
-    songs = songList;
+    console.log(this);
     this.pause();
+
+
+    songs = songList;
     playing = true;
-    currentSong = song;
-    // if (song === $rootScope.currentSong) return audio.play();
-    // $rootScope.currentSong = song;
-    audio.src = song.audioUrl;
-    audio.load();
+    if (currentSong !== song) {
+      currentSong = song;
+      audio.src = song.audioUrl;
+      audio.load();
+    }
+
     audio.play();
   }
 
@@ -54,7 +53,6 @@ juke.factory('PlayerFactory', function(){
   toReturn.next = function () {
     var currIndex = songs.indexOf(currentSong);
     var nextIndex = currIndex === songs.length - 1 ? 0 : currIndex + 1;
-    console.log(currIndex, nextIndex)
     this.start(songs[nextIndex], songs);
   }
 
@@ -64,14 +62,22 @@ juke.factory('PlayerFactory', function(){
     this.start(songs[prevIndex], songs);
   }
 
+// need to do this
+
+
   toReturn.getProgress = function () {
     if(!currentSong) return 0;
-    console.log(audio, audio.currentTime);
-    // audio.addEventListener("timeupdate", function() {
-    //   console.log(audio.currentTime);
-    // })
-    // return audio.currentTime / audio.duration;
+    else {
+      var progress = audio.currentTime / audio.duration;
+      return progress;
+    }
   }
+
+
+  audio.addEventListener("timeupdate", function () {
+    $rootScope.$digest();
+  })
+
 
   return toReturn;
 });

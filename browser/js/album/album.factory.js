@@ -1,4 +1,4 @@
-juke.factory('StatsFactory', function ($q) {
+  juke.factory('StatsFactory', function ($q) {
   var statsObj = {};
   statsObj.totalTime = function (album) {
     var audio = document.createElement('audio');
@@ -19,23 +19,35 @@ juke.factory('StatsFactory', function ($q) {
   return statsObj;
 });
 
-juke.factory("FetchAlbumFactory", function($http, $log) {
+juke.factory("FetchAlbumFactory", function($http, $log, SongsFactory) {
   var funcObj = {};
   funcObj.fetchAll = function() {
     return $http.get("/api/albums")
       .then(function(response) {
         var albums = response.data;
+        albums = albums.map(funcObj.addAlbumImage);
         return albums;
       })
       .catch($log.error);
     }
+
+  funcObj.addAlbumImage = function (album) {
+    album.imageUrl = '/api/albums/' + album._id + '.image';
+    album.totalSongs = album.songs.length;
+    return album;
+  }
+
   funcObj.fetchById = function(id) {
     return $http.get("/api/albums/" + id)
       .then(function(response) {
         var album = response.data;
+        album = funcObj.addAlbumImage(album);
+        album.songs = album.songs.map(SongsFactory.addAudioUrl);
         return album;
       })
     }
+
+
 
   return funcObj;
 })

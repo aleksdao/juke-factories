@@ -1,60 +1,39 @@
 'use strict';
 
-juke.controller('AlbumCtrl', function($scope, $http, $rootScope, $log, FetchAlbumFactory, StatsFactory) {
-
-  // load our initial data
+juke.controller('AlbumCtrl', function($scope, $http, $rootScope, $log, FetchAlbumFactory, StatsFactory, PlayerFactory) {
 
 
-console.log(FetchAlbumFactory);
-  // $http.get('/api/albums/')
-  // .then(function (res) { return res.data; })
-  // .then(function (albums) {
-  //   return $http.get('/api/albums/' + albums[0]._id); // temp: get one
-  // })
-  // .then(function (res) { return res.data })
-FetchAlbumFactory.fetchAll()
-  .then(function (albums) {
-    return FetchAlbumFactory.fetchById(albums[0]._id)
-  })
-  .then(function (album) {
-    album.imageUrl = '/api/albums/' + album._id + '.image';
-    album.songs.forEach(function (song, i) {
-      song.audioUrl = '/api/songs/' + song._id + '.audio';
-      song.albumIndex = i;
-    });
-    $scope.album = album;
-    StatsFactory.totalTime(album)
-      .then(function (albumDuration) {
-        $scope.fullDuration = albumDuration;
-        console.log($scope.fullDuration);
-      })
-  })
-  .catch($log.error); // $log service can be turned on and off; also, pre-bound
-
-  // console.log(StatsFactory.totalTime($scope.album));
-
-
-  // main toggle
   $scope.toggle = function (song) {
-    if ($scope.playing && song === $scope.currentSong) {
-      $rootScope.$broadcast('pause');
-    } else $rootScope.$broadcast('play', song);
+    if (PlayerFactory.isPlaying() && song === PlayerFactory.getCurrentSong()) {
+      PlayerFactory.pause();
+    } else {
+      PlayerFactory.start(song, $scope.album.songs);
+      // $scope.currentSong = song;
+      // $scope.playing = true;
+    }
   };
 
-  // incoming events (from Player, toggle, or skip)
-  $scope.$on('pause', pause);
-  $scope.$on('play', play);
-  $scope.$on('next', next);
-  $scope.$on('prev', prev);
-
-  // functionality
-  function pause () {
-    $scope.playing = false;
+  $scope.getCurrentSong = function () {
+    return PlayerFactory.getCurrentSong();
   }
-  function play (event, song) {
-    $scope.playing = true;
-    $scope.currentSong = song;
-  };
+
+  $scope.playing = function (song) {
+    return PlayerFactory.isPlaying();
+  }
+
+  $rootScope.$on("viewSwap", function (event, data) {
+    $scope.showMe = data.name === "oneAlbum";
+    if($scope.showMe) {
+      FetchAlbumFactory.fetchById(data.album._id)
+        .then(function (album) {
+          StatsFactory.totalTime(album)
+            .then(function (albumDuration) {
+              $scope.fullDuration = albumDuration;
+            })
+          $scope.album = album;
+        })
+    }
+  })
 
   // a "true" modulo that wraps negative to the top of the range
   function mod (num, m) { return ((num % m) + m) % m; };

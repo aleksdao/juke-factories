@@ -34,7 +34,7 @@ describe('`PlayerFactory` factory', function () {
       TEST SPECS
   /------------------*/
 
-  describe('#start', function () {
+  xdescribe('#start', function () {
 
     it('plays given song', function () {
       chai.spy.on(HTMLAudioElement.prototype, 'load');
@@ -55,7 +55,7 @@ describe('`PlayerFactory` factory', function () {
 
   });
 
-  describe('#pause', function () {
+  xdescribe('#pause', function () {
 
     it("calls audio's `pause`", function () {
       chai.spy.on(HTMLAudioElement.prototype, 'pause');
@@ -65,7 +65,7 @@ describe('`PlayerFactory` factory', function () {
 
   });
 
-  describe('#resume', function () {
+  xdescribe('#resume', function () {
 
     it("calls audio's `play`", function () {
       chai.spy.on(HTMLAudioElement.prototype, 'play');
@@ -75,7 +75,7 @@ describe('`PlayerFactory` factory', function () {
 
   });
 
-  describe('#isPlaying', function () {
+  xdescribe('#isPlaying', function () {
 
     it('returns false when song is not playing', function () {
       expect(PlayerFactory.isPlaying()).to.equal(false);
@@ -97,7 +97,7 @@ describe('`PlayerFactory` factory', function () {
 
   });
 
-  describe('#getCurrentSong', function () {
+  xdescribe('#getCurrentSong', function () {
 
     it('defaults to null', function () {
       expect(PlayerFactory.getCurrentSong()).to.equal(null);
@@ -116,7 +116,7 @@ describe('`PlayerFactory` factory', function () {
 
   });
 
-  describe('#next', function () {
+  xdescribe('#next', function () {
 
     var songList;
 
@@ -141,7 +141,7 @@ describe('`PlayerFactory` factory', function () {
 
   });
 
-  describe('#previous', function () {
+  xdescribe('#previous', function () {
 
     var songList;
 
@@ -169,7 +169,7 @@ describe('`PlayerFactory` factory', function () {
 
   describe('#getProgress', function () {
 
-    it('is 0 before playing song', function () {
+    xit('is 0 before playing song', function () {
       expect(PlayerFactory.getProgress()).to.equal(0);
     });
 
@@ -178,6 +178,7 @@ describe('`PlayerFactory` factory', function () {
       audioMock.addEventListener('playing', function () {
         setTimeout(function () {
           // the song is about 59 seconds long
+          console.log("player factory", PlayerFactory.getProgress());
           expect(PlayerFactory.getProgress()).to.be.closeTo(1.5/59, 0.01);
           done();
         }, 1500);

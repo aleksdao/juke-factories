@@ -1,10 +1,17 @@
-juke.controller('AlbumsCtrl', function($scope,FetchAlbumFactory, $log){
+juke.controller('AlbumsCtrl', function ($scope, $rootScope, FetchAlbumFactory, $log){
   FetchAlbumFactory.fetchAll()
   .then(function(albums){
-    albums.forEach(function(album){
-      album.imageUrl = '/api/albums/' + album._id + '.image';
-      album.totalSongs = album.songs.length;
-    })
     $scope.albums = albums;
   })
+
+  $scope.showMe = true;
+
+  $rootScope.$on("viewSwap", function (event, data) {
+    $scope.showMe = data.name === "allAlbums";
+  })
+
+  $scope.viewOneAlbum = function (album) {
+    $rootScope.$broadcast("viewSwap", { name: "oneAlbum", album: album });
+  }
+
 })
